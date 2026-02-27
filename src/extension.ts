@@ -16,19 +16,14 @@ function getCurrentBranch(workspaceFolder: string): string | null {
 }
 
 function hashStringToHue(str: string): number {
-    // Create a hash of the string and convert to hue (0-360)
-    // Use golden ratio for better distribution
-    const hash = crypto.createHash('md5').update(str).digest('hex');
+    // Use SHA-256 and take first 4 bytes as a 32-bit integer
+    const hash = crypto.createHash('sha256').update(str).digest();
 
-    // Take first 8 chars and convert to number
-    const num = parseInt(hash.substring(0, 8), 16);
+    // Read 4 bytes as a 32-bit unsigned integer for maximum range
+    const value = hash.readUInt32BE(0);
 
-    // Use golden ratio (φ ≈ 1.618033988749) to spread values
-    // Multiply by 360 and take fractional part for better distribution
-    const goldenRatio = 0.618033988749895;
-    const hue = ((num * goldenRatio) % 1) * 360;
-
-    return Math.floor(hue);
+    // Simple modulo gives good uniform distribution
+    return value % 360;
 }
 
 function hslToHex(h: number, s: number, l: number): string {
