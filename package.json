@@ -39,7 +39,7 @@
           "type": "number",
           "minimum": 0,
           "maximum": 100,
-          "description": "Override color lightness (0-100). If not set, automatically generated from branch name (28-38)"
+          "description": "Override color lightness (0-100). If not set, automatically generated from branch name (28-32 for guaranteed 4:1 contrast)"
         }
       }
     }

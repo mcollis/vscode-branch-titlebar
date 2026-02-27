@@ -15,6 +15,40 @@ function getCurrentBranch(workspaceFolder: string): string | null {
     }
 }
 
+function getLuminance(r: number, g: number, b: number): number {
+    const [rs, gs, bs] = [r, g, b].map(c => {
+        c = c / 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+}
+
+function getContrastRatio(rgb1: number[], rgb2: number[]): number {
+    const l1 = getLuminance(rgb1[0], rgb1[1], rgb1[2]);
+    const l2 = getLuminance(rgb2[0], rgb2[1], rgb2[2]);
+    const lighter = Math.max(l1, l2);
+    const darker = Math.min(l1, l2);
+    return (lighter + 0.05) / (darker + 0.05);
+}
+
+function hslToRgb(h: number, s: number, l: number): number[] {
+    const sNorm = s / 100;
+    const lNorm = l / 100;
+    const c = (1 - Math.abs(2 * lNorm - 1)) * sNorm;
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = lNorm - c / 2;
+
+    let r = 0, g = 0, b = 0;
+    if (h < 60) { r = c; g = x; b = 0; }
+    else if (h < 120) { r = x; g = c; b = 0; }
+    else if (h < 180) { r = 0; g = c; b = x; }
+    else if (h < 240) { r = 0; g = x; b = c; }
+    else if (h < 300) { r = x; g = 0; b = c; }
+    else { r = c; g = 0; b = x; }
+
+    return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+}
+
 function hashStringToColor(str: string): { hue: number; saturation: number; lightness: number } {
     // Use SHA-256 for generating color components
     const hash = crypto.createHash('sha256').update(str).digest();
@@ -30,8 +64,24 @@ function hashStringToColor(str: string): { hue: number; saturation: number; ligh
     // Saturation: 40-60% (good color without being too vibrant or dull)
     const saturation = 40 + (satValue % 21);
 
-    // Lightness: 28-38% (dark enough for good contrast with white text)
-    const lightness = 28 + (lightValue % 11);
+    // Lightness: Start with 28-35% range
+    let lightness = 28 + (lightValue % 8);
+
+    // Dynamically darken until we meet minimum contrast ratio of 4.5:1 with white
+    const whiteRgb = [255, 255, 255];
+    const MIN_CONTRAST = 4.5;
+
+    while (lightness > 20) {
+        const rgb = hslToRgb(hue, saturation, lightness);
+        const contrast = getContrastRatio(whiteRgb, rgb);
+
+        if (contrast >= MIN_CONTRAST) {
+            break;
+        }
+
+        // Darken by 1% and try again
+        lightness -= 1;
+    }
 
     return { hue, saturation, lightness };
 }
