@@ -6,9 +6,10 @@ Automatically colors your VSCode title bar based on the current git branch.
 
 - **Automatic color generation**: Each branch gets a consistent color generated from its name using SHA-256 hashing for excellent color distribution
 - **Wide color diversity**: Branch names map uniformly across the entire color spectrum (red, orange, yellow, green, cyan, blue, purple)
+- **Variable saturation & lightness**: Saturation (40-60%) and lightness (28-38%) are also derived from the branch hash, ensuring even branches with similar hues are visually distinct
 - **Automatic git protection**: Automatically runs `git update-index --skip-worktree` on your workspace file
 - **Updates automatically**: Color changes when you switch branches
-- **Customizable**: Adjust saturation and lightness to your preference
+- **Customizable**: Override saturation and lightness if desired
 - **Perfect for worktrees**: Quickly identify which branch/worktree you're in at a glance
 
 ## How It Works
@@ -43,8 +44,8 @@ Automatically colors your VSCode title bar based on the current git branch.
 ## Settings
 
 - `branchTitleBar.enabled`: Enable/disable automatic coloring (default: true)
-- `branchTitleBar.saturation`: Color saturation 0-100 (default: 45)
-- `branchTitleBar.lightness`: Color lightness 0-100 (default: 33)
+- `branchTitleBar.saturation`: Override color saturation 0-100 (if not set, automatically generated from branch name: 40-60)
+- `branchTitleBar.lightness`: Override color lightness 0-100 (if not set, automatically generated from branch name: 28-38)
 
 ## Command
 

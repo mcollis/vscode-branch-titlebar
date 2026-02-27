@@ -31,17 +31,15 @@
         },
         "branchTitleBar.saturation": {
           "type": "number",
-          "default": 45,
           "minimum": 0,
           "maximum": 100,
-          "description": "Color saturation percentage (0-100)"
+          "description": "Override color saturation (0-100). If not set, automatically generated from branch name (40-60)"
         },
         "branchTitleBar.lightness": {
           "type": "number",
-          "default": 33,
           "minimum": 0,
           "maximum": 100,
-          "description": "Color lightness percentage (0-100)"
+          "description": "Override color lightness (0-100). If not set, automatically generated from branch name (28-38)"
         }
       }
     }

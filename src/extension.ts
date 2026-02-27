@@ -15,15 +15,25 @@ function getCurrentBranch(workspaceFolder: string): string | null {
     }
 }
 
-function hashStringToHue(str: string): number {
-    // Use SHA-256 and take first 4 bytes as a 32-bit integer
+function hashStringToColor(str: string): { hue: number; saturation: number; lightness: number } {
+    // Use SHA-256 for generating color components
     const hash = crypto.createHash('sha256').update(str).digest();
 
-    // Read 4 bytes as a 32-bit unsigned integer for maximum range
-    const value = hash.readUInt32BE(0);
+    // Read different parts of hash for different color components
+    const hueValue = hash.readUInt32BE(0);
+    const satValue = hash.readUInt32BE(4);
+    const lightValue = hash.readUInt32BE(8);
 
-    // Simple modulo gives good uniform distribution
-    return value % 360;
+    // Hue: Full spectrum (0-360)
+    const hue = hueValue % 360;
+
+    // Saturation: 40-60% (good color without being too vibrant or dull)
+    const saturation = 40 + (satValue % 21);
+
+    // Lightness: 28-38% (dark enough for good contrast with white text)
+    const lightness = 28 + (lightValue % 11);
+
+    return { hue, saturation, lightness };
 }
 
 function hslToHex(h: number, s: number, l: number): string {
@@ -118,9 +128,14 @@ async function updateTitleBarColor() {
             return;
         }
 
-        const saturation = config.get<number>('saturation', 45);
-        const lightness = config.get<number>('lightness', 33);
-        const hue = hashStringToHue(branch);
+        // Generate color from branch name
+        const generatedColor = hashStringToColor(branch);
+
+        // Allow config overrides (if not set, use generated values)
+        const saturation = config.get<number>('saturation') ?? generatedColor.saturation;
+        const lightness = config.get<number>('lightness') ?? generatedColor.lightness;
+        const hue = generatedColor.hue;
+
         const hexColor = hslToHex(hue, saturation, lightness);
 
         console.log(`Branch Title Bar: Branch "${branch}" -> Color ${hexColor} (H:${hue} S:${saturation} L:${lightness})`);
