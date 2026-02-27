@@ -210,7 +210,9 @@ async function updateTitleBarColor() {
         const newColors = {
             ...currentColors,
             'titleBar.activeBackground': hexColor,
-            'titleBar.inactiveBackground': hexColor
+            'titleBar.inactiveBackground': hexColor,
+            'titleBar.activeForeground': '#FFFFFF',
+            'titleBar.inactiveForeground': '#FFFFFF'
         };
 
         console.log('Branch Title Bar: Updating workspace configuration...');
